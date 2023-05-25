@@ -1,0 +1,1032 @@
+@use "sass:list";
+@use "sass:map";
+@use "@core/scss/base/mixins";
+@use "@layouts/styles/mixins" as layoutsMixins;
+@use "@configured-variables" as variables;
+@use "@styles/variables/vuetify";
+
+// 👉 Autocomplete
+.v-input--density-compact .v-field--variant-plain,
+.v-input--density-compact .v-field--variant-underlined {
+  --v-input-control-height: 40px !important;
+}
+
+// 👉 Body
+// set body font size 15px
+body {
+  font-size: 15px !important;
+}
+
+// 👉 Avatar
+.v-avatar {
+  font-weight: 500;
+}
+
+// 👉 Alert
+// ℹ️ custom icon styling
+
+$alert-prepend-icon-font-size: 1.125rem !important;
+
+.v-alert {
+  font-weight: 500;
+
+  &:not(.v-alert--prominent) .v-alert__prepend {
+    .v-icon {
+      block-size: 1.625rem !important;
+      font-size: 1.625rem !important;
+      inline-size: 1.625rem !important;
+    }
+  }
+
+  .v-alert-title {
+    margin-block-end: 0.55rem;
+  }
+
+  .v-alert__close {
+    .v-btn--icon {
+      --v-btn-height: 4px;
+
+      font-size: 0.5rem;
+      margin-block-end: 0.2rem;
+
+      .v-btn__overlay,
+      .v-ripple__container {
+        opacity: 0;
+      }
+    }
+  }
+
+  &:not(.v-alert--prominent) {
+    .v-alert__prepend {
+      .v-icon {
+        padding: 0.275rem;
+        border-radius: 0.375rem;
+        background-color: rgb(var(--v-theme-surface));
+      }
+    }
+
+    &.v-alert--variant-flat,
+    &.v-alert--variant-elevated {
+      .v-alert__prepend {
+        .v-icon {
+          background-color: #fff;
+        }
+      }
+    }
+  }
+}
+
+.v-alert.v-alert--density-compact {
+  border-radius: 0.25rem;
+}
+
+.v-alert.v-alert--density-default {
+  border-radius: 0.5rem;
+}
+
+@each $color-name in variables.$theme-colors-name {
+  .v-alert {
+    &:not(.v-alert--prominent) {
+      &.bg-#{$color-name},
+      &.text-#{$color-name} {
+        .v-alert__prepend .v-icon {
+          color: rgb(var(--v-theme-#{$color-name})) !important;
+        }
+      }
+    }
+
+    &.v-alert--variant-outlined,
+    &.v-alert--variant-text,
+    &.v-alert--variant-plain {
+      &:not(.v-alert--prominent) {
+        &.text-#{$color-name},
+        &.bg-#{$color-name} {
+          .v-alert__prepend .v-icon {
+            background-color: rgb(var(--v-theme-#{$color-name}));
+            color: rgb(var(--v-theme-on-#{$color-name})) !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 👉 Button
+// Above map but opacity values as key and variant as value
+$btn-active-overlay-opacity: (
+  0.08: (outlined, flat, text, plain),
+  0.24: (tonal),
+);
+$btn-hover-overlay-opacity: (
+  0.1: (elevated),
+  0.08: (outlined, flat, text, plain),
+  0.24: (tonal),
+);
+
+.v-btn {
+  transform: scale(1.001);
+
+  // ℹ️ This is necessary because as we have darker overlay on hover for elevated variant, button text doesn't get dimmed
+  // This style is already applied to `.v-icon`
+  .v-btn__content {
+    z-index: 0;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  // Set icon size to 18px for default button
+  .v-icon {
+    --v-icon-size-multiplier: 0.799407846;
+  }
+
+  // Add transition on hover
+  &:not(.v-btn--loading) .v-btn__overlay {
+    transition: opacity 0.15s ease-in-out;
+    will-change: opacity;
+  }
+
+  /*
+    Loop over $btn-active-overlay-opacity map and add active styles for each variant.
+    Group variants with same opacity value.
+  */
+  @each $opacity, $variants in $btn-active-overlay-opacity {
+    $selectors: ();
+
+    // append each variant to selectors list
+    @each $variant in $variants {
+      $selectors: list.append($selectors, "&.v-btn--variant-#{$variant}:active > .v-btn__overlay,");
+    }
+
+    #{$selectors} {
+      opacity: $opacity;
+    }
+  }
+
+  /*
+    Loop over $btn-hover-overlay-opacity map and add hover styles for each variant.
+    Group variants with same opacity value.
+  */
+  @each $opacity, $variants in $btn-hover-overlay-opacity {
+    $selectors: ();
+
+    // append each variant to selectors list
+    @each $variant in $variants {
+      $selectors: list.append($selectors, "&.v-btn--variant-#{$variant}:hover > .v-btn__overlay,");
+    }
+
+    #{$selectors} {
+      opacity: $opacity;
+    }
+  }
+
+  // Default (elevated) button
+  &--variant-elevated,
+  &--variant-flat {
+    // We want darker background on hover instead of light
+    &:not(.v-btn--loading, .v-btn--disabled) .v-btn__overlay {
+      background-color: black;
+
+      // Disable transition because we are getting flash of black color when loading finishes
+      transition: none;
+    }
+  }
+
+  // Update background color of tonal button
+  &.v-btn--variant-tonal .v-btn__underlay {
+    opacity: 0.16;
+  }
+
+  // Button border-radius
+  &:not(.v-btn--icon).v-btn--size-x-small {
+    border-radius: 2px;
+  }
+
+  &:not(.v-btn--icon).v-btn--size-small {
+    border-radius: 4px;
+  }
+
+  &:not(.v-btn--icon).v-btn--size-large {
+    border-radius: 8px;
+  }
+
+  &:not(.v-btn--icon).v-btn--size-x-large {
+    border-radius: 10px;
+  }
+}
+
+// 👉 Badge
+.v-badge {
+  .v-badge__badge .v-icon {
+    font-size: 0.9375rem;
+  }
+}
+
+// 👉 Checkbox
+.v-checkbox {
+  .v-label {
+    // We adjusted it to vertically align the label
+    line-height: 21px;
+  }
+
+  .v-input__details {
+    // Remove extra space below the label
+    min-block-size: unset !important;
+    padding-block-start: 0 !important;
+  }
+}
+
+// 👉 Chip
+.v-chip {
+  .v-chip__close {
+    font-size: 0.8125rem;
+  }
+
+  .v-icon--start {
+    margin-inline-start: 0 !important;
+  }
+}
+
+// 👉 checkbox size and box shadow
+.v-checkbox-btn {
+  &.v-selection-control--dirty {
+    .v-selection-control__input {
+      .v-icon.iconify--custom {
+        // ℹ️ Using filter: drop-shadow() instead of box-shadow because box-shadow creates white background for SVG
+        // @include mixins.elevation(2);
+        filter: drop-shadow(map.get(vuetify.$shadow-key-umbra, 2));
+      }
+    }
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity */
+  .v-selection-control__input {
+    /* stylelint-disable-next-line no-descending-specificity */
+    .v-icon.iconify--custom {
+      block-size: 1.125rem !important;
+      font-size: 1.125rem !important;
+      inline-size: 1.125rem !important;
+    }
+  }
+}
+
+// 👉 Dialog
+.v-dialog {
+  // dialog custom close btn
+  .v-dialog-close-btn {
+    border-radius: 0.375rem;
+    background-color: rgb(var(--v-theme-surface)) !important;
+    block-size: 2rem;
+    inline-size: 2rem;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    transform: translate(0.5rem, -0.5rem);
+
+    @include layoutsMixins.rtl {
+      transform: translate(-0.5rem, -0.5rem);
+    }
+
+    &:hover {
+      transform: translate(0.3125rem, -0.3125rem);
+
+      @include layoutsMixins.rtl {
+        transform: translate(-0.3125rem, -0.3125rem);
+      }
+    }
+  }
+}
+
+// 👉 Expansion panels
+.v-application.v-layout .v-application__wrap .v-expansion-panels {
+  // custom style for expansion panels
+  &.expansion-panels-width-border {
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-radius: 0.375rem;
+  }
+
+  .v-expansion-panel {
+    margin-block-start: 0 !important;
+
+    // expansion panel arrow font size
+    .v-expansion-panel-title {
+      color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+      font-weight: 500;
+
+      .v-expansion-panel-title__icon {
+        transition: transform 0.2s ease-in-out;
+
+        .v-icon {
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    .v-expansion-panel-title,
+    .v-expansion-panel-title--active,
+    .v-expansion-panel-title:hover,
+    .v-expansion-panel-title:focus,
+    .v-expansion-panel-title:focus-visible,
+    .v-expansion-panel-title--active:focus,
+    .v-expansion-panel-title--active:hover {
+      .v-expansion-panel-title__overlay {
+        opacity: 0 !important;
+      }
+    }
+
+    // Set Elevation when panel open
+    &:not(.v-expansion-panels--variant-accordion) {
+      &.v-expansion-panel--active {
+        .v-expansion-panel__shadow {
+          @include mixins.elevation(7);
+        }
+      }
+    }
+  }
+
+  &:not(.no-icon-rotate) {
+    .v-expansion-panel {
+      .v-expansion-panel-title__icon {
+        .v-icon {
+          @include layoutsMixins.rtl {
+            transform: scaleX(-1);
+          }
+        }
+      }
+
+      &.v-expansion-panel--active {
+        .v-expansion-panel-title__icon {
+          transform: rotate(90deg);
+
+          @include layoutsMixins.rtl {
+            transform: rotate(-90deg);
+          }
+        }
+      }
+    }
+  }
+
+  &:not(.expansion-panels-width-border) {
+    .v-expansion-panel {
+      &:not(:last-child) {
+        margin-block-end: 0.5rem;
+      }
+
+      &:not(:first-child)::after {
+        content: none;
+      }
+
+      // ℹ️ we have to use below style of increase the specificity and override the default style
+      /* stylelint-disable-next-line no-descending-specificity */
+      &:first-child:not(:last-child),
+      &:not(:first-child, :last-child),
+      &:not(:first-child) {
+        border-radius: 0.375rem !important;
+      }
+    }
+  }
+}
+
+// 👉 Field
+.v-field__input {
+  opacity: 1 !important;
+}
+
+// 👉 Label
+// ℹ️ We need to increase the line height for vertically aligned text
+.v-field {
+  line-height: 23px;
+}
+
+// 👉 List
+.v-list-item {
+  --v-hover-opacity: 0.08 !important;
+
+  /* stylelint-disable-next-line no-descending-specificity */
+  .v-ripple__container {
+    display: none;
+  }
+
+  .v-checkbox-btn.v-selection-control--density-compact {
+    margin-inline-end: 0.5rem;
+  }
+
+  .v-list-item__overlay {
+    transition: none;
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity */
+  &.v-list-item--density-comfortable .v-icon {
+    font-size: 1.25rem;
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity */
+  &.v-list-item--density-compact .v-icon {
+    font-size: 1.125rem;
+  }
+
+  // Without this, we get light primary due to the opacity of currentColor (active list item has white color)
+  &.v-list-item--active > .v-list-item__overlay {
+    opacity: 0 !important;
+  }
+
+  &.v-list-item--active:not(.v-list-group__header) {
+    background-color: rgb(var(--v-theme-primary));
+    color: rgb(var(--v-theme-on-primary));
+
+    .v-list-item-subtitle {
+      color: rgb(var(--v-theme-on-primary));
+    }
+  }
+
+  &[tabindex="0"]:not(.v-list-item--active) {
+    &:hover,
+    &:focus-visible {
+      color: rgb(var(--v-theme-primary));
+
+      .v-list-item-subtitle {
+        color: rgb(var(--v-theme-primary));
+      }
+    }
+  }
+
+  &.v-list-item--active.v-list-group__header {
+    color: rgb(var(--v-theme-primary));
+  }
+
+  &.v-list-item--active {
+    .v-list-item__prepend {
+      .v-checkbox,
+      .v-checkbox-btn {
+        .v-selection-control__input > .v-icon {
+          rect {
+            fill: white;
+
+            + path {
+              stroke: rgb(var(--v-theme-primary));
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// 👉 Menu
+// Menu custom style
+.v-menu.v-overlay {
+  .v-overlay__content {
+    .v-list {
+      .v-list-item {
+        border-radius: 0.375rem;
+        margin-block: 0.25rem;
+        margin-inline: 0.5rem;
+        min-block-size: 2.375rem;
+
+        &:first-child {
+          margin-block-start: 0;
+        }
+
+        &:last-child {
+          margin-block-end: 0;
+        }
+      }
+
+      .v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line {
+        padding-block: 0.5rem;
+      }
+    }
+  }
+}
+
+// 👉 Pagination
+.v-pagination {
+  .v-pagination__list .v-pagination__item--is-active {
+    .v-btn {
+      background-color: rgb(var(--v-theme-primary));
+
+      .v-btn__underlay {
+        opacity: 1 !important;
+      }
+
+      .v-btn__content {
+        color: rgb(var(--v-theme-on-primary));
+      }
+    }
+  }
+
+  // Disable scale animation for button
+  .v-pagination__item {
+    .v-btn {
+      transform: scale(1) !important;
+
+      // We disabled transition because it looks ugly 🤮
+      transition-duration: 0s;
+
+      &:active {
+        transform: scale(1);
+      }
+    }
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity */
+  .v-pagination__next,
+  .v-pagination__prev {
+    /* stylelint-disable-next-line no-descending-specificity */
+    .v-btn--icon .v-icon {
+      --v-icon-size-multiplier: 0.889;
+    }
+  }
+}
+
+// 👉 Radio
+.v-radio,
+.v-radio-btn {
+  .v-selection-control__input {
+    .iconify--custom {
+      border-radius: 5rem;
+      block-size: 1.125rem !important;
+      font-size: 1.125rem !important;
+      inline-size: 1.125rem !important;
+    }
+  }
+
+  &.v-selection-control--dirty {
+    .v-selection-control__input {
+      .iconify--custom {
+        @include mixins.elevation(2);
+      }
+    }
+  }
+
+  .v-label {
+    line-height: 22px;
+  }
+}
+
+// 👉 Radio, Checkbox
+.v-radio,
+.v-checkbox-btn {
+  &:not(.v-selection-control--dirty) {
+    .v-selection-control__input > svg {
+      color: rgba(var(--v-theme-on-surface), var(--v-disabled-opacity));
+    }
+  }
+}
+
+// 👉 Rating
+.v-rating {
+  .v-rating__wrapper {
+    .v-btn .v-icon {
+      --v-icon-size-multiplier: 1;
+    }
+
+    .v-btn--density-default {
+      --v-btn-height: 26px;
+    }
+
+    .v-btn--density-compact {
+      --v-btn-height: 30px;
+    }
+
+    .v-btn--density-comfortable {
+      --v-btn-height: 32px;
+    }
+  }
+}
+
+// 👉 switch
+.v-switch.v-switch--inset {
+  .v-switch__track,
+  .v-selection-control__wrapper {
+    block-size: 1.125rem;
+    inline-size: 1.875rem;
+  }
+
+  .v-ripple__container {
+    opacity: 0;
+  }
+
+  &:not(.v-input--disabled) .v-switch__track {
+    border: 1px solid rgba(var(--v-border-color), var(--v-switch-opacity));
+    background-color: rgb(var(--v-theme-surface));
+    opacity: 1;
+  }
+
+  .v-selection-control__input {
+    transform: translateX(-5px);
+
+    --v-selection-control-size: 1.125rem;
+
+    .v-switch__thumb {
+      background: rgba(var(--v-theme-on-surface), var(--v-switch-opacity));
+      block-size: 0.75rem;
+      inline-size: 0.75rem;
+    }
+  }
+
+  .v-selection-control--dirty {
+    .v-switch__track {
+      border-color: rgba(var(--v-border-color), var(--v-switch-opacity));
+    }
+
+    @each $color-name in variables.$theme-colors-name {
+      .text-#{$color-name} {
+        .v-switch__track {
+          border-color: rgb(var(--v-theme-#{$color-name}));
+          background-color: rgb(var(--v-theme-#{$color-name}));
+        }
+      }
+    }
+
+    .v-selection-control__input {
+      transform: translateX(5px);
+
+      .v-switch__thumb {
+        background-color: #fff;
+      }
+    }
+  }
+
+  // disabled
+  &.v-input--disabled {
+    &:not(.v-input--dirty) {
+      .v-selection-control__input .v-switch__thumb {
+        background: rgba(var(--v-theme-on-surface), var(--v-switch-disabled-thumb-opacity));
+      }
+
+      .v-switch__track {
+        background-color: rgba(var(--v-theme-on-surface), var(--v-switch-disabled-track-opacity));
+      }
+    }
+
+    &.v-input--dirty {
+      .v-selection-control--disabled {
+        opacity: var(--v-switch-checked-disabled-opacity);
+      }
+    }
+  }
+}
+
+.v-switch.v-input,
+.v-checkbox-btn,
+.v-radio-btn,
+.v-radio {
+  --v-input-control-height: auto;
+
+  flex: unset;
+}
+
+// 👉 Slider
+.v-slider-thumb {
+  border: 3px solid rgb(var(--v-theme-surface));
+  border-radius: 5rem;
+
+  @include mixins.elevation(3);
+}
+
+.v-slider-thumb__label {
+  background: vuetify.$tooltip-background-color !important;
+  color: rgb(var(--v-theme-on-primary)) !important;
+  font-weight: 500;
+}
+
+.v-slider.v-input--horizontal .v-slider-thumb__label::before {
+  border-block-start-color: vuetify.$tooltip-background-color !important;
+}
+
+.v-slider.v-input--vertical .v-slider-thumb__label::before {
+  border-inline-end-color: vuetify.$tooltip-background-color !important;
+}
+
+// 👉 slider track opacity
+.v-slider-track__background--opacity {
+  opacity: 1 !important;
+}
+
+// 👉 Table
+.v-table {
+  --v-table-row-height: 56px;
+  --v-table-header-height: 48px !important;
+
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity)) !important;
+
+  th {
+    color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity)) !important;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.0625rem;
+    text-transform: uppercase;
+
+    .v-data-table-header__content {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
+
+// 👉 Tabs
+// v-tab with pill support
+.v-tabs {
+  &.v-tabs--vertical {
+    --v-tabs-height: 38px !important;
+
+    &:not(.v-tabs-pill) {
+      block-size: 100%;
+      border-inline-end: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    }
+  }
+
+  &.v-tabs--horizontal:not(.v-tabs-pill) {
+    border-block-end: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+
+    .v-tab__slider {
+      block-size: 3px;
+    }
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity */
+  .v-btn {
+    font-weight: 400;
+    transform: none !important;
+
+    &.v-btn--stacked {
+      /* stylelint-disable-next-line no-descending-specificity */
+      .v-icon {
+        --v-icon-size-multiplier: 1.1428571429;
+      }
+    }
+
+    /* stylelint-disable-next-line no-descending-specificity */
+    .v-btn__overlay,
+    .v-ripple__container {
+      opacity: 0 !important;
+    }
+
+    /* stylelint-disable-next-line no-descending-specificity */
+    .v-tab__slider {
+      inset-inline-end: 0;
+      inset-inline-start: unset;
+    }
+  }
+}
+
+// 👉 Tab Pill
+.v-tabs.v-tabs-pill {
+  .v-slide-group-item--active.v-tab--selected {
+    @include mixins.elevation(2);
+  }
+
+  &.v-slide-group,
+  .v-slide-group__container {
+    box-sizing: content-box;
+    padding: 1rem;
+    margin: -1rem;
+  }
+
+  .v-tab.v-btn {
+    &:hover {
+      color: rgba(var(--v-theme-primary));
+    }
+  }
+}
+
+// 👉 Timeline
+.v-timeline {
+  .v-timeline-divider__dot {
+    background: none !important;
+
+    .v-timeline-divider__inner-dot {
+      box-shadow: 0 0 0 0.1875rem rgb(var(--v-theme-on-surface-variant));
+
+      @each $color-name in variables.$theme-colors-name {
+
+        &.bg-#{$color-name} {
+          box-shadow: 0 0 0 0.1875rem rgba(var(--v-theme-#{$color-name}), 0.12);
+        }
+      }
+    }
+  }
+
+  // timeline icon only
+  &.v-timeline-icon-only {
+    .v-timeline-divider__dot {
+      .v-timeline-divider__inner-dot {
+        background: none;
+        box-shadow: none;
+
+        /* stylelint-disable-next-line no-descending-specificity */
+        .v-icon {
+          background: rgb(var(--v-theme-background));
+        }
+      }
+    }
+  }
+
+  // we have to override the default bg-color of the timeline dot in the card
+  .v-card:not(.v-card--variant-text, .v-card--variant-plain, .v-card--variant-outlined) & {
+    &.v-timeline-icon-only {
+      .v-timeline-divider__dot {
+        .v-timeline-divider__inner-dot {
+          /* stylelint-disable-next-line no-descending-specificity */
+          .v-icon {
+            background: rgb(var(--v-theme-surface));
+          }
+        }
+      }
+    }
+  }
+
+  .v-card.v-card--variant-tonal & {
+    &.v-timeline-icon-only {
+      .v-timeline-divider__dot {
+        .v-timeline-divider__inner-dot {
+          /* stylelint-disable-next-line no-descending-specificity */
+          .v-icon {
+            background: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 👉 TextField, Select, AutoComplete, ComboBox, Textarea
+// ℹ️ We added .v-application to increase the specificity of the selector
+.v-application {
+  .app-text-field,
+  .app-select,
+  .app-autocomplete,
+  .app-combobox,
+  .app-textarea,
+  .app-picker-field {
+    .v-text-field .v-input__details {
+      padding-inline-start: 0;
+    }
+
+    .v-field--variant-outlined.v-field--focused .v-field__outline {
+      --v-field-border-width: 1px !important;
+    }
+
+    // Label
+    // .v-input {
+    //   line-height: 22px !important;
+    // }
+
+    // Settings 22px line height causes vertical alignment issues so we need to adjust the input line height
+    // .v-field__input {
+    //   line-height: 21px;
+    // }
+
+    // Density: comfortable
+    .v-input--density-comfortable {
+      .v-field {
+        input,
+        .v-select__selection-text {
+          font-size: 1.125rem;
+        }
+      }
+    }
+
+    // Density: default
+    .v-input--density-default {
+      .v-field {
+        input,
+        .v-select__selection-text {
+          font-size: 1.375rem;
+        }
+      }
+    }
+
+    // Placeholder transition
+    .v-field {
+      input,
+      .v-field__input {
+        &::placeholder {
+          transition: transform 0.2s ease-out;
+        }
+      }
+    }
+
+    .v-field--focused {
+      // @include elevation.elevation(1);
+      box-shadow: 0 2px 4px rgba(var(--v-shadow-key-umbra-color), 0.12);
+
+      // Transition placeholder
+      &.v-field {
+        input,
+        .v-field__input {
+          &::placeholder {
+            transform: translateX(4px) !important;
+
+            [dir="rtl"] & {
+              transform: translateX(-4px) !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @mixin style-selectable-component($component-name) {
+    .app-#{$component-name} {
+      .v-#{$component-name}__selection {
+        line-height: 24px;
+        margin-block: 0 !important;
+      }
+
+      // Vertical alignment of placeholder & text
+      .v-#{$component-name} .v-field .v-field__input > input {
+        align-self: center;
+      }
+
+      // Chips
+      // .v-#{$component-name}.v-#{$component-name}--chips.v-#{$component-name}--selected {
+      .v-#{$component-name}.v-#{$component-name}--chips.v-input--dirty {
+        .v-#{$component-name}__selection {
+          margin: 0;
+        }
+
+        .v-field__input {
+          gap: 3px;
+        }
+
+        &.v-input--density-compact {
+          .v-field__input {
+            padding-inline-start: 0.5rem;
+          }
+        }
+
+        &.v-input--density-comfortable {
+          .v-field__input {
+            padding-inline-start: 0.75rem;
+          }
+        }
+
+        &.v-input--density-default {
+          .v-field__input {
+            padding-inline-start: 1rem;
+          }
+        }
+      }
+    }
+  }
+
+  @include style-selectable-component("autocomplete");
+  @include style-selectable-component("select");
+  @include style-selectable-component("combobox");
+
+  .v-input--density-compact {
+    .v-field__clearable,
+    .v-field__append-inner {
+      svg {
+        block-size: 0.8em;
+        inline-size: 0.8em;
+        margin-block-start: 0.15em;
+
+        // transform: scale(0.75);
+        // transform-origin: center;
+      }
+    }
+  }
+
+  // AutoComplete
+  @at-root {
+    .app-autocomplete__content {
+      .v-list-item--active {
+        .v-autocomplete__mask {
+          background: #5c52c0;
+        }
+      }
+
+      .v-theme--dark {
+        .v-list-item:not(.v-list-item--active) {
+          .v-autocomplete__mask {
+            background: #3b405c;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Style list differently when it's used in a components like select, menu etc
+.v-menu {
+  .v-list-item {
+    // Adjust padding of list item inside menu
+    padding-block: 8px !important;
+    padding-inline: 16px !important;
+  }
+}
+
+.app-inner-list {
+  // Hide checkboxes
+  .v-selection-control {
+    display: none;
+  }
+}
+
+// Hide resizer
+::-webkit-resizer {
+  background: transparent;
+}
