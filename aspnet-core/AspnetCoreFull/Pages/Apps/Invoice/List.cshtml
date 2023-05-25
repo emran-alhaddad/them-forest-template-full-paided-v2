@@ -1,0 +1,46 @@
+@page
+@model AspnetCoreFull.Pages.Apps.Invoice.InvoiceListModel
+@{
+  ViewData["Title"] = "List - Invoice";
+}
+
+@section VendorStyles {
+<link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.dist.css">
+<link rel="stylesheet" href="~/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.dist.css">
+<link rel="stylesheet" href="~/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.dist.css">
+}
+
+@section VendorScripts {
+<script src="~/vendor/libs/moment/moment.dist.js"></script>
+<script src="~/vendor/libs/datatables-bs5/datatables-bootstrap5.dist.js"></script>
+}
+
+@section PageScripts {
+<script src="~/js/app-invoice-list.dist.js"></script>
+}
+
+@* ************** Content ************** *@
+<h4 class="fw-bold py-3 mb-4">
+  <span class="text-muted fw-light">Invoice /</span> List
+</h4>
+
+<!-- Invoice List Table -->
+<div class="card">
+  <div class="card-datatable table-responsive">
+    <table class="invoice-list-table table border-top">
+      <thead>
+        <tr>
+          <th></th>
+          <th>#ID</th>
+          <th><i class='ti ti-trending-up'></i></th>
+          <th>Client</th>
+          <th>Total</th>
+          <th class="text-truncate">Issued Date</th>
+          <th>Balance</th>
+          <th>Invoice Status</th>
+          <th class="cell-fit">Actions</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+</div>
